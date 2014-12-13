@@ -1,0 +1,11 @@
+/_build
+/deps
+erl_crash.dump
+*.ez
+*.pro.user
+*.o
+*.so
+*.so*
+*.swp
+*.png
+Makefile
