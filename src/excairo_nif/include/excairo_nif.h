@@ -7,6 +7,7 @@
 
 #define MAX_FILENAME_LENGTH 255
 #define MAX_FONTFMLY_LENGTH 32
+#define MAX_TEXT_SIZE 512
 
 // Macro definitions
 // --------------------------------------------------------------------------------
@@ -30,6 +31,14 @@
 #define ERL_MAKE_GC_RES(object, name) \
     ERL_NIF_TERM name = enif_make_resource(env, object); \
     enif_release_resource(object);
+
+#define ERL_GET_UTF8_STRING(pos, name) \
+    ErlNifBinary bin; \
+    enif_inspect_binary(env, argv[pos], &bin); \
+    char name[bin.size + 1]; \
+    memset(name, 0, bin.size + 1); \
+    memcpy(name, bin.data, bin.size);
+
 
 // Standard return type
 #define ERL_MAKE_OK_TUPLE(data) enif_make_tuple2(env, enif_make_atom(env, "ok"), data);
