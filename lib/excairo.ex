@@ -15,6 +15,69 @@ defmodule ExCairo do
   end
 
   @doc """
+  Adds a circular arc of the given radius to the current path. 
+  The arc is centered at (xc, yc), begins at angle1 and proceeds 
+  in the direction of increasing angles to end at angle2. 
+  
+  If angle2 is less than angle1 it will be progressively increased 
+  by 2*M_PI until it is greater than angle1.
+  """
+  def arc(_context, _xc, _yc, _radius, _angle1, _angle2) do
+    exit :library_not_loaded
+  end
+
+  @doc """
+  See `ExCairo.arc` for more details. This function differs only in the 
+  direction of the arc between the two angles.
+  """
+  def arc_negative(_context, _xc, _yc, _radius, _angle1, _angle2) do
+    exit :library_not_loaded  
+  end
+
+  @doc """
+  Establishes a new clip region by intersecting the current clip region 
+  with the current path as it would be filled by `ExCairo.fill` and according 
+  to the current fill rule.
+  """
+  def clip(_context) do
+    exit :library_not_loaded
+  end
+
+  @doc """
+  Computes a bounding box in user coordinates covering the area 
+  inside the current clip.
+  """
+  def clip_extents(_context, _x1, _y1, _x2, _y2) do
+    exit :library_not_loaded
+  end
+
+  @doc """
+  Unlike `ExCairo.clip`, `ExCairo.clip_preserve` preserves the path 
+  within the cairo context.
+  """
+  def clip_preserve(_context) do
+    exit :library_not_loaded
+  end
+
+  @doc """
+  Adds a line segment to the path from the current point to the 
+  beginning of the current sub-path, (the most recent point passed 
+  `ExCairo.move_to`), and closes this sub-path. After this call the 
+  current point will be at the joined endpoint of the sub-path. 
+  """
+  def close_path(_context) do
+    exit :library_not_loaded
+  end
+
+  @doc """
+  Gets the current clip region as a list of rectangles in user coordinates.
+  Returns an empty list of the number of rectangles is zero.
+  """
+  def copy_clip_rectangle_list(_context) do
+    exit :library_not_loaded
+  end
+
+  @doc """
   Creates a bitmap in memory
 
     iex> import ExCairo.Constants.Format

@@ -118,3 +118,38 @@ static void gc_cairo_surface_t (ErlNifEnv *env, void *instance) {
 }
 
 // --------------------------------------------------------------------------------
+
+
+// cairo_path_t
+// --------------------------------------------------------------------------------
+
+/**
+ * Erlang Resource Type representing a
+ * cairo_path_t
+ * @brief cairo_surface_t_RT
+ */
+static ErlNifResourceType *cairo_path_t_RT = NULL;
+
+/**
+ * Struct to use in place of cairo_surface_t when
+ * allocating resources with enif_alloc_resource
+ */
+typedef struct {
+    cairo_path_t *data;
+} cairo_path_t_TYPE;
+
+/**
+ * Destructor function to enable garbage collection of
+ * cairo_surface_t instances
+ * @brief gc_cairo_surface_t
+ * @param env Erlang environment
+ * @param instance wraps a cairo_surface_t instance
+ */
+static void gc_cairo_path_t (ErlNifEnv *env, void *instance) {
+    cairo_path_t_TYPE* path = (cairo_path_t_TYPE *) instance;
+    if (env && path && path->data) {
+        cairo_path_destroy(path->data);
+    }
+}
+
+// --------------------------------------------------------------------------------
