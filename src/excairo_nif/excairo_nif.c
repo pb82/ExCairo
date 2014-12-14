@@ -1,6 +1,23 @@
 #include "./include/excairo_nif.h"
 
 /**
+ * Those predefined atoms are used in places where c enums are passed.
+ * Enums could be represented as integers, but using atoms makes for a
+ * nicer API on the erlang/elixir side.
+ * @brief init_terms
+ * @param env
+ */
+static void define_predef_atoms (ErlNifEnv *env) {
+    ET_invalid          = enif_make_atom(env, "invalid");
+    ET_a1               = enif_make_atom(env, "a1");
+    ET_a8               = enif_make_atom(env, "a8");
+    ET_argb32           = enif_make_atom(env, "argb32");
+    ET_rgb16_565        = enif_make_atom(env, "rgb16_565");
+    ET_rgb24            = enif_make_atom(env, "rgb24");
+    ET_rgb30            = enif_make_atom(env, "rgb30");
+}
+
+/**
  * NIF initialization
  * @brief load
  * @param env Erlang environment
@@ -50,6 +67,9 @@ static int load(ErlNifEnv *env, void **priv, ERL_NIF_TERM load_info) {
     ERL_ASSERT_LOAD(cairo_surface_t_RT);
     ERL_ASSERT_LOAD(cairo_path_t_RT);
     ERL_ASSERT_LOAD(cairo_t_RT);
+
+    // Initialize the predefined erlang terms
+    define_predef_atoms(env);
 
     // Return success
     return 0;
@@ -405,6 +425,157 @@ static ERL_NIF_TERM EX_fill_preserve(ErlNifEnv* env, int argc, const ERL_NIF_TER
 }
 
 /**
+ * Wraps cairo_font_extents(caior_t *cr, cairo_font_extents_t *extents)
+ * -> Returns a 5-tuple containing the members of the cairo_font_extents_t
+ * struct.
+ * @brief EX_font_extents
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_font_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_font_extents_t font_extents;
+    cairo_font_extents(context->data, &font_extents);
+
+    return enif_make_tuple5(env,
+                            enif_make_double(env, font_extents.ascent),
+                            enif_make_double(env, font_extents.descent),
+                            enif_make_double(env, font_extents.height),
+                            enif_make_double(env, font_extents.max_x_advance),
+                            enif_make_double(env, font_extents.max_y_advance));
+}
+
+// TODO
+// Font functions
+// (cairo_font...)
+// cairo_format_stride_for_width
+
+/**
+ * Wraps cairo_get_antialias(caior_t *cr)
+ * @brief EX_get_antialias
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_antialias(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_antialias_t antialias = cairo_get_antialias(context->data);
+    switch(antialias) {
+    case CAIRO_ANTIALIAS_DEFAULT:
+        return enif_make_atom(env, "default");
+    case CAIRO_ANTIALIAS_NONE:
+        return enif_make_atom(env, "none");
+    case CAIRO_ANTIALIAS_GRAY:
+        return enif_make_atom(env, "gray");
+    case CAIRO_ANTIALIAS_SUBPIXEL:
+        return enif_make_atom(env, "subpixel");
+    case CAIRO_ANTIALIAS_FAST:
+        return enif_make_atom(env, "fast");
+    case CAIRO_ANTIALIAS_GOOD:
+        return enif_make_atom(env, "good");
+    case CAIRO_ANTIALIAS_BEST:
+        return enif_make_atom(env, "best");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_get_current_point(caior_t *cr, double *x, double *y)
+ * -> Returns a 2-tuple containing the coordinates of the point (x,y)
+ * @brief EX_get_current_point
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_current_point(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x, y;
+    cairo_get_current_point(context->data, &x, &y);
+    return enif_make_tuple2(env,
+                            enif_make_double(env, x),
+                            enif_make_double(env, y));
+}
+
+/**
+ * Wraps cairo_get_dash(caior_t *cr, double *dashes, double *offset)
+ * -> Returns a 2-tuple containing the data (dashes,offset)
+ * @brief EX_get_dash
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_dash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double dashes, offset;
+    cairo_get_current_point(context->data, &dashes, &offset);
+    return enif_make_tuple2(env,
+                            enif_make_double(env, dashes),
+                            enif_make_double(env, offset));
+}
+
+/**
+ * Wraps cairo_get_dash_count(caior_t *cr)
+ * -> Returns an integer (dash count)
+ * @brief EX_get_dash_count
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_dash_count(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    int dash_count = cairo_get_dash_count(context->data);
+    return enif_make_int(env, dash_count);
+}
+
+/**
+ * Wraps cairo_get_fill_rule(caior_t *cr)
+ * -> Returns an integer (fill rule)
+ * @brief EX_get_dash_count
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_fill_rule(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_fill_rule_t rule = cairo_get_fill_rule(context->data);
+    switch (rule) {
+    case CAIRO_FILL_RULE_WINDING:
+        return enif_make_atom(env, "winding");
+    case CAIRO_FILL_RULE_EVEN_ODD:
+        return enif_make_atom(env, "even_odd");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
@@ -415,7 +586,15 @@ static ERL_NIF_TERM EX_fill_preserve(ErlNifEnv* env, int argc, const ERL_NIF_TER
 static ERL_NIF_TERM EX_image_surface_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     ERL_ASSERT_ARGC(3);
 
-    ERL_GET_INT(0, format);
+    cairo_format_t format = -1;
+    ERL_TRY_ATOM(0, ET_invalid,      format, -1)
+    _ERL_TRY_ATOM(0, ET_argb32,      format, 0)
+    _ERL_TRY_ATOM(0, ET_rgb24,       format, 1)
+    _ERL_TRY_ATOM(0, ET_a8,          format, 2)
+    _ERL_TRY_ATOM(0, ET_a1,          format, 3)
+    _ERL_TRY_ATOM(0, ET_rgb16_565,   format, 4)
+    _ERL_TRY_ATOM(0, ET_rgb30,       format, 5);
+
     ERL_GET_INT(1, width);
     ERL_GET_INT(2, height);
 
@@ -491,8 +670,16 @@ static ERL_NIF_TERM EX_select_font_face(ErlNifEnv* env, int argc, const ERL_NIF_
     ERL_ASSERT(context);
 
     ERL_GET_UTF8_STRING(1, family);
-    ERL_GET_INT(2, slant);
-    ERL_GET_INT(3, weight);
+
+    cairo_font_slant_t slant = CAIRO_FONT_SLANT_NORMAL;
+    cairo_font_weight_t weight = CAIRO_FONT_WEIGHT_NORMAL;
+
+    ERL_TRY_ATOM(2, ET_normal,      slant, 0)
+    _ERL_TRY_ATOM(2, ET_italic,     slant, 1)
+    _ERL_TRY_ATOM(2, ET_oblique,    slant, 2);
+
+    ERL_TRY_ATOM(3, ET_normal,      weight, 0)
+    _ERL_TRY_ATOM(3, ET_bold,       weight, 1);
 
     cairo_select_font_face(context->data, family, slant, weight);
     return ERL_OK;
@@ -632,6 +819,21 @@ static ErlNifFunc nif_funcs[] = {
     { "clip_preserve",              1, EX_clip_preserve },
     { "close_path",                 1, EX_close_path },
     { "copy_clip_rectangle_list",   1, EX_copy_clip_rectangle_list },
+
+    { "copy_page",                  1, EX_copy_page },
+    { "copy_path",                  1, EX_copy_path },
+    { "copy_path_flat",             1, EX_copy_path_flat },
+    { "curve_to",                   7, EX_curve_to },
+    { "fill",                       1, EX_fill },
+    { "fill_extents",               1, EX_fill_extents },
+    { "fill_preserve",              1, EX_fill_preserve },
+    { "font_extents",               1, EX_font_extents },
+    { "get_antialias",              1, EX_get_antialias },
+    { "get_current_point",          1, EX_get_current_point },
+    { "get_dash",                   1, EX_get_dash },
+    { "get_dash_count",             1, EX_get_dash_count },
+    { "get_fill_rule",              1, EX_get_fill_rule },
+
     { "image_surface_create",       3, EX_image_surface_create },
     { "create",                     1, EX_cairo_create },
     { "surface_write_to_png",       2, EX_surface_write_to_png },

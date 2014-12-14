@@ -5,9 +5,7 @@
 #include "erl_nif.h"
 #include "cairo.h"
 
-#define MAX_FILENAME_LENGTH 255
-#define MAX_FONTFMLY_LENGTH 32
-#define MAX_TEXT_SIZE 512
+#define MAX_TUPLE_LENGTH 32
 
 // Macro definitions
 // --------------------------------------------------------------------------------
@@ -39,6 +37,11 @@
     memset(name, 0, bin.size + 1); \
     memcpy(name, bin.data, bin.size);
 
+#define ERL_TRY_ATOM(pos, atom, name, value) \
+    if (enif_compare(argv[pos], atom) == 0) { name = value; }
+
+#define _ERL_TRY_ATOM(pos, atom, name, value) \
+    else if (enif_compare(argv[pos], atom) == 0) { name = value; }
 
 // Standard return type
 #define ERL_MAKE_OK_TUPLE(data) enif_make_tuple2(env, enif_make_atom(env, "ok"), data);
@@ -46,6 +49,26 @@
 
 // Use only in nif initializer function
 #define ERL_ASSERT_LOAD(condition) if (!(condition)) return -1
+
+// --------------------------------------------------------------------------------
+
+// Predefined erlang terms
+// --------------------------------------------------------------------------------
+
+// Surface format related
+static ERL_NIF_TERM ET_invalid = NULL;
+static ERL_NIF_TERM ET_argb32;
+static ERL_NIF_TERM ET_rgb24;
+static ERL_NIF_TERM ET_a8;
+static ERL_NIF_TERM ET_a1;
+static ERL_NIF_TERM ET_rgb16_565;
+static ERL_NIF_TERM ET_rgb30;
+
+// Font related
+static ERL_NIF_TERM ET_normal;
+static ERL_NIF_TERM ET_oblique;
+static ERL_NIF_TERM ET_italic;
+static ERL_NIF_TERM ET_bold;
 
 // --------------------------------------------------------------------------------
 
