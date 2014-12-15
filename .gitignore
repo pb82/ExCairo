@@ -3,6 +3,7 @@
 erl_crash.dump
 *.ez
 *.pro.user
+*.pro.user*
 *.o
 *.so
 *.so*

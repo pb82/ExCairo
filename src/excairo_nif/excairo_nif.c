@@ -15,6 +15,45 @@ static void define_predef_atoms (ErlNifEnv *env) {
     ET_rgb16_565        = enif_make_atom(env, "rgb16_565");
     ET_rgb24            = enif_make_atom(env, "rgb24");
     ET_rgb30            = enif_make_atom(env, "rgb30");
+    ET_normal           = enif_make_atom(env, "normal");
+    ET_italic           = enif_make_atom(env, "italic");
+    ET_oblique          = enif_make_atom(env, "oblique");
+    ET_bold             = enif_make_atom(env, "bold");
+    ET_butt             = enif_make_atom(env, "butt");
+    ET_round            = enif_make_atom(env, "round");
+    ET_square           = enif_make_atom(env, "square");
+    ET_miter            = enif_make_atom(env, "miter");
+    ET_bevel            = enif_make_atom(env, "bevel");
+
+    ET_clear            = enif_make_atom(env, "clear");
+    ET_source           = enif_make_atom(env, "source");
+    ET_over             = enif_make_atom(env, "over");
+    ET_in               = enif_make_atom(env, "in");
+    ET_out              = enif_make_atom(env, "out");
+    ET_atop             = enif_make_atom(env, "atop");
+    ET_dest             = enif_make_atom(env, "dest");
+    ET_dest_over        = enif_make_atom(env, "dest_over");
+    ET_dest_in          = enif_make_atom(env, "dest_in");
+    ET_dest_out         = enif_make_atom(env, "dest_out");
+    ET_dest_atop        = enif_make_atom(env, "dest_atop");
+    ET_xor              = enif_make_atom(env, "xor");
+    ET_add              = enif_make_atom(env, "add");
+    ET_saturate         = enif_make_atom(env, "saturate");
+    ET_multiply         = enif_make_atom(env, "multiply");
+    ET_screen           = enif_make_atom(env, "screen");
+    ET_overlay          = enif_make_atom(env, "overlay");
+    ET_darken           = enif_make_atom(env, "darken");
+    ET_lighten          = enif_make_atom(env, "lighten");
+    ET_color_dodge      = enif_make_atom(env, "color_dodge");
+    ET_color_burn       = enif_make_atom(env, "color_burn");
+    ET_hard_light       = enif_make_atom(env, "hard_light");
+    ET_soft_light       = enif_make_atom(env, "soft_light");
+    ET_difference       = enif_make_atom(env, "difference");
+    ET_exclusion        = enif_make_atom(env, "exclusion");
+    ET_hsl_hue          = enif_make_atom(env, "hsl_hue");
+    ET_hsl_saturation   = enif_make_atom(env, "hsl_saturation");
+    ET_hsl_color        = enif_make_atom(env, "hsl_color");
+    ET_hsl_luminosity   = enif_make_atom(env, "hsl_luminosity");
 }
 
 /**
@@ -55,6 +94,30 @@ static int load(ErlNifEnv *env, void **priv, ERL_NIF_TERM load_info) {
              gc_cairo_path_t,
              ERL_NIF_RT_CREATE, NULL);
 
+    // Define cairo_font_face_t_TYPE
+    cairo_font_face_t_RT = enif_open_resource_type(
+             env,
+             NULL,
+             "cairo_font_face_t_TYPE",
+             gc_cairo_font_face_t,
+             ERL_NIF_RT_CREATE, NULL);
+
+    // Define cairo_font_options_t_TYPE
+    cairo_font_options_t_RT = enif_open_resource_type(
+             env,
+             NULL,
+             "cairo_font_options_t_TYPE",
+             gc_cairo_font_options_t,
+             ERL_NIF_RT_CREATE, NULL);
+
+    // Define cairo_pattern_t_TYPE
+    cairo_pattern_t_RT = enif_open_resource_type(
+             env,
+             NULL,
+             "cairo_pattern_t_TYPE",
+             gc_cairo_pattern_t,
+             ERL_NIF_RT_CREATE, NULL);
+
     // Define cairo_t_TYPE
     cairo_t_RT = enif_open_resource_type(
              env,
@@ -66,6 +129,9 @@ static int load(ErlNifEnv *env, void **priv, ERL_NIF_TERM load_info) {
     // Assert that all definitions were successful
     ERL_ASSERT_LOAD(cairo_surface_t_RT);
     ERL_ASSERT_LOAD(cairo_path_t_RT);
+    ERL_ASSERT_LOAD(cairo_font_face_t_RT);
+    ERL_ASSERT_LOAD(cairo_font_options_t_RT);
+    ERL_ASSERT_LOAD(cairo_pattern_t_RT);
     ERL_ASSERT_LOAD(cairo_t_RT);
 
     // Initialize the predefined erlang terms
@@ -574,6 +640,426 @@ static ERL_NIF_TERM EX_get_fill_rule(ErlNifEnv* env, int argc, const ERL_NIF_TER
     }
 }
 
+/**
+ * Wraps cairo_get_font_face(caior_t *cr)
+ * @brief EX_get_font_face
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_font_face(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_MAKE_INSTANCE(cairo_font_face_t_TYPE, cairo_font_face_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_get_font_face(context->data);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, font_face);
+    return ERL_MAKE_OK_TUPLE(font_face);
+}
+
+/**
+ * Wraps cairo_get_font_matrix
+ * -> Returns a list of tuples, representing the matrix
+ * @brief EX_get_dash_count
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_font_matrix(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_matrix_t matrix;
+    cairo_get_font_matrix(context->data, &matrix);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_get_font_options(cairo_t *cr, cairo_font_options_t *options)
+ * -> Retruns a resource containing a font options object
+ * @brief EX_get_font_options
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_font_options(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_MAKE_INSTANCE(cairo_font_options_t_TYPE, cairo_font_options_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    cairo_get_font_options(context->data, instance->data);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, opts);
+    return opts;
+}
+
+
+
+/**
+ * Wraps cairo_get_group_target(cairo_t *cr)
+ * -> Returns a non-garbage collectable pointer to a surface
+ * @brief EX_get_font_options
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_group_target(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    // Must not be garbage collected since this instance
+    // is owned by cairo
+    instance->data = cairo_get_group_target(context->data);
+
+    return enif_make_resource(env, instance);
+}
+
+/**
+ * Wraps cairo_get_line_cap(cairo_t *cr)
+ * @brief EX_get_line_cap
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_line_cap(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_line_cap_t cap = cairo_get_line_cap(context->data);
+    switch (cap) {
+    case CAIRO_LINE_CAP_BUTT:
+        return enif_make_atom(env, "butt");
+    case CAIRO_LINE_CAP_ROUND:
+        return enif_make_atom(env, "round");
+    case CAIRO_LINE_CAP_SQUARE:
+        return enif_make_atom(env, "square");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_get_line_join(cairo_t *cr)
+ * @brief EX_get_line_join
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_line_join(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_line_join_t join = cairo_get_line_join(context->data);
+    switch (join) {
+    case CAIRO_LINE_JOIN_MITER:
+        return enif_make_atom(env, "miter");
+    case CAIRO_LINE_JOIN_ROUND:
+        return enif_make_atom(env, "round");
+    case CAIRO_LINE_JOIN_BEVEL:
+        return enif_make_atom(env, "bevel");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_get_line_width(cairo_t *cr)
+ * @brief EX_get_line_width
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_line_width(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double width = cairo_get_line_width(context->data);
+    return enif_make_double(env, width);
+}
+
+/**
+ * Wraps cairo_get_matrix(cairo_t *cr)
+ * @brief EX_get_matrix
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_matrix(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_matrix_t matrix;
+    cairo_get_matrix(context->data, &matrix);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_get_miter_limit(cairo_t *cr)
+ * @brief EX_get_miter_limit
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_miter_limit(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double limit = cairo_get_miter_limit(context->data);
+    return enif_make_double(env, limit);
+}
+
+/**
+ * Wraps cairo_get_operator(cairo_t *cr)
+ * @brief EX_get_operator
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_operator(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_operator_t op = cairo_get_operator(context->data);
+    switch(op) {
+    case CAIRO_OPERATOR_CLEAR:
+        return enif_make_atom(env, "clear");
+    case CAIRO_OPERATOR_SOURCE:
+        return enif_make_atom(env, "source");
+    case CAIRO_OPERATOR_OVER:
+        return enif_make_atom(env, "over");
+    case CAIRO_OPERATOR_IN:
+        return enif_make_atom(env, "in");
+    case CAIRO_OPERATOR_OUT:
+        return enif_make_atom(env, "out");
+    case CAIRO_OPERATOR_ATOP:
+        return enif_make_atom(env, "atop");
+    case CAIRO_OPERATOR_DEST:
+        return enif_make_atom(env, "dest");
+    case CAIRO_OPERATOR_DEST_OVER:
+        return enif_make_atom(env, "over");
+    case CAIRO_OPERATOR_DEST_IN:
+        return enif_make_atom(env, "dest_in");
+    case CAIRO_OPERATOR_DEST_OUT:
+        return enif_make_atom(env, "dest_out");
+    case CAIRO_OPERATOR_DEST_ATOP:
+        return enif_make_atom(env, "dest_atop");
+    case CAIRO_OPERATOR_XOR:
+        return enif_make_atom(env, "xor");
+    case CAIRO_OPERATOR_ADD:
+        return enif_make_atom(env, "add");
+    case CAIRO_OPERATOR_SATURATE:
+        return enif_make_atom(env, "saturate");
+    case CAIRO_OPERATOR_MULTIPLY:
+        return enif_make_atom(env, "multiply");
+    case CAIRO_OPERATOR_SCREEN:
+        return enif_make_atom(env, "screen");
+    case CAIRO_OPERATOR_OVERLAY:
+        return enif_make_atom(env, "overlay");
+    case CAIRO_OPERATOR_DARKEN:
+        return enif_make_atom(env, "darken");
+    case CAIRO_OPERATOR_LIGHTEN:
+        return enif_make_atom(env, "lighten");
+    case CAIRO_OPERATOR_COLOR_DODGE:
+        return enif_make_atom(env, "color_dodge");
+    case CAIRO_OPERATOR_COLOR_BURN:
+        return enif_make_atom(env, "color_burn");
+    case CAIRO_OPERATOR_HARD_LIGHT:
+        return enif_make_atom(env, "hard_light");
+    case CAIRO_OPERATOR_SOFT_LIGHT:
+        return enif_make_atom(env, "soft_light");
+    case CAIRO_OPERATOR_DIFFERENCE:
+        return enif_make_atom(env, "difference");
+    case CAIRO_OPERATOR_EXCLUSION:
+        return enif_make_atom(env, "exclusion");
+    case CAIRO_OPERATOR_HSL_HUE:
+        return enif_make_atom(env, "hsl_hue");
+    case CAIRO_OPERATOR_HSL_SATURATION:
+        return enif_make_atom(env, "hsl_saturation");
+    case CAIRO_OPERATOR_HSL_COLOR:
+        return enif_make_atom(env, "hsl_color");
+    case CAIRO_OPERATOR_HSL_LUMINOSITY:
+        return enif_make_atom(env, "hsl_luminosity");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_get_reference_count(cairo_t *cr)
+ * @brief EX_get_reference_count
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_reference_count(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    unsigned int count = cairo_get_reference_count(context->data);
+    return enif_make_int(env, count);
+}
+
+/**
+ * Wraps cairo_get_source(cairo_t *cr)
+ * @brief EX_get_source
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_source(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_get_source(context->data);
+
+    // The object is owned by cairo, so don't garbage collect it
+    return enif_make_resource(env, instance);
+}
+
+/**
+ * Wraps cairo_get_target(cairo_t *cr)
+ * @brief EX_get_target
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_target(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_get_target(context->data);
+
+    // The object is owned by cairo, so don't garbage collect it
+    return enif_make_resource(env, instance);
+}
+
+/**
+ * Wraps cairo_get_tolerance(cairo_t *cr)
+ * @brief EX_get_tolerance
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_get_tolerance(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double tolerance = cairo_get_tolerance(context->data);
+    return enif_make_double(env, tolerance);
+}
+
+// TODO
+// MISSING
+// cairo_glyph_*
+
+/**
+ * Wraps cairo_has_current_point(cairo_t *cr)
+ * @brief EX_get_tolerance
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_has_current_point(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_bool_t result = cairo_has_current_point(context->data);
+    return result ? enif_make_atom(env, "true") : enif_make_atom(env, "false");
+}
+
+/**
+ * Wraps cairo_identity_matrix(cairo_t *cr)
+ * @brief EX_identity_matrix
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_identity_matrix(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_identity_matrix(context->data);
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_identity_matrix(cairo_t *cr)
+ * @brief EX_identity_matrix
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_image_surface_create_from_png(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_UTF8_STRING(1, file_name);
+
+    ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_image_surface_create_from_png(file_name);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, surface);
+    return ERL_MAKE_OK_TUPLE(surface);
+
+}
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
