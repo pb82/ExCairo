@@ -1197,7 +1197,7 @@ static ERL_NIF_TERM EX_mask(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 /**
- * Wraps cairo_mask_surface(cairo_t *cr, cairo_pattern_t *pattern)
+ * Wraps cairo_mask_surface(cairo_t *cr, cairo_surface_t *surface)
  * @brief EX_mask_surface
  * @param env
  * @param argc
@@ -1209,16 +1209,46 @@ static ERL_NIF_TERM EX_mask_surface(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
     ERL_ASSERT(context);
 
-    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 1, pattern);
-    ERL_ASSERT(pattern);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 1, surface);
+    ERL_ASSERT(surface);
 
     double surface_x, surface_y;
     enif_get_double(env, argv[2], &surface_x);
     enif_get_double(env, argv[3], &surface_y);
 
-    cairo_mask_surface(context->data, pattern->data, surface_x, surface_y);
+    cairo_mask_surface(context->data, surface->data, surface_x, surface_y);
 
     return ERL_OK;
+}
+
+/**
+ * Wraps cairo_matrix_init(cairo_t *cr, double xx, double yx, double xy, double x0, doubel y0)
+ * @brief EX_matrix_init
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_init(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(7);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double xx, yx, xy, yy, x0, y0;
+    enif_get_double(env, argv[1], &xx);
+    enif_get_double(env, argv[2], &yx);
+    enif_get_double(env, argv[3], &xy);
+    enif_get_double(env, argv[4], &yy);
+    enif_get_double(env, argv[5], &x0);
+    enif_get_double(env, argv[6], &y0);
+
+    cairo_matrix_t matrix;
+    cairo_matrix_init(&matrix, xx, yx, xy, yy, x0, y0);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
 }
 
 
