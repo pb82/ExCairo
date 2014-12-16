@@ -44,8 +44,11 @@
     else if (enif_compare(argv[pos], atom) == 0) { name = value; }
 
 // Standard return type
-#define ERL_MAKE_OK_TUPLE(data) enif_make_tuple2(env, enif_make_atom(env, "ok"), data);
+#define ERL_MAKE_OK_TUPLE(data) enif_make_tuple2(env, enif_make_atom(env, "ok"), data)
 #define ERL_OK enif_make_atom(env, "ok");
+
+#define ERL_BOOL(cairo_bool) \
+    cairo_bool ? enif_make_atom(env, "true") : enif_make_atom(env, "false")
 
 // Use only in nif initializer function
 #define ERL_ASSERT_LOAD(condition) if (!(condition)) return -1

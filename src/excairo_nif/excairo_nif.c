@@ -1006,7 +1006,7 @@ static ERL_NIF_TERM EX_get_tolerance(ErlNifEnv* env, int argc, const ERL_NIF_TER
 
 /**
  * Wraps cairo_has_current_point(cairo_t *cr)
- * @brief EX_get_tolerance
+ * @brief EX_has_current_point
  * @param env
  * @param argc
  * @param argv
@@ -1018,7 +1018,7 @@ static ERL_NIF_TERM EX_has_current_point(ErlNifEnv* env, int argc, const ERL_NIF
     ERL_ASSERT(context);
 
     cairo_bool_t result = cairo_has_current_point(context->data);
-    return result ? enif_make_atom(env, "true") : enif_make_atom(env, "false");
+    return ERL_BOOL(result);
 }
 
 /**
@@ -1039,8 +1039,8 @@ static ERL_NIF_TERM EX_identity_matrix(ErlNifEnv* env, int argc, const ERL_NIF_T
 }
 
 /**
- * Wraps cairo_identity_matrix(cairo_t *cr)
- * @brief EX_identity_matrix
+ * Wraps cairo_image_surface_create_from_png(const char *filename)
+ * @brief EX_image_surface_create_from_png
  * @param env
  * @param argc
  * @param argv
@@ -1048,7 +1048,7 @@ static ERL_NIF_TERM EX_identity_matrix(ErlNifEnv* env, int argc, const ERL_NIF_T
  */
 static ERL_NIF_TERM EX_image_surface_create_from_png(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     ERL_ASSERT_ARGC(1);
-    ERL_GET_UTF8_STRING(1, file_name);
+    ERL_GET_UTF8_STRING(0, file_name);
 
     ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
     ERL_ASSERT(instance);
@@ -1060,6 +1060,167 @@ static ERL_NIF_TERM EX_image_surface_create_from_png(ErlNifEnv* env, int argc, c
     return ERL_MAKE_OK_TUPLE(surface);
 
 }
+
+/**
+ * Wraps cairo_image_surface_get_height(cairo_surface_t *surface)
+ * @brief EX_image_surface_get_height
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_image_surface_get_height(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface);
+    ERL_ASSERT(surface);
+
+    int height = cairo_image_surface_get_height(surface->data);
+    return enif_make_int(env, height);
+}
+
+/**
+ * Wraps cairo_image_surface_get_width(cairo_surface_t *surface)
+ * @brief EX_image_surface_get_width
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_image_surface_get_width(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface);
+    ERL_ASSERT(surface);
+
+    int width = cairo_image_surface_get_width(surface->data);
+    return enif_make_int(env, width);
+}
+
+/**
+ * Wraps cairo_image_surface_get_stride(cairo_surface_t *surface)
+ * @brief EX_image_surface_get_stride
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_image_surface_get_stride(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface);
+    ERL_ASSERT(surface);
+
+    int stride = cairo_image_surface_get_stride(surface->data);
+    return enif_make_int(env, stride);
+}
+
+/**
+ * Wraps cairo_in_clip(cairo_t *cr, double x, double y)
+ * @brief EX_in_clip
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_in_clip(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x, y;
+    enif_get_double(env, argv[1], &x);
+    enif_get_double(env, argv[2], &y);
+
+    cairo_bool_t result = cairo_in_clip(context->data, x, y);
+    return ERL_BOOL(result);
+}
+
+/**
+ * Wraps cairo_in_fill(cairo_t *cr, double x, double y)
+ * @brief EX_in_fill
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_in_fill(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x, y;
+    enif_get_double(env, argv[1], &x);
+    enif_get_double(env, argv[2], &y);
+
+    cairo_bool_t result = cairo_in_fill(context->data, x, y);
+    return ERL_BOOL(result);
+}
+
+/**
+ * Wraps cairo_in_stroke(cairo_t *cr, double x, double y)
+ * @brief EX_in_stroke
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_in_stroke(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x, y;
+    enif_get_double(env, argv[1], &x);
+    enif_get_double(env, argv[2], &y);
+
+    cairo_bool_t result = cairo_in_fill(context->data, x, y);
+    return ERL_BOOL(result);
+}
+
+/**
+ * Wraps cairo_mask(cairo_t *cr, cairo_pattern_t *pattern)
+ * @brief EX_mask
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_mask(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 1, pattern);
+    ERL_ASSERT(pattern);
+
+    cairo_mask(context->data, pattern->data);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_mask_surface(cairo_t *cr, cairo_pattern_t *pattern)
+ * @brief EX_mask_surface
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_mask_surface(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(4);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 1, pattern);
+    ERL_ASSERT(pattern);
+
+    double surface_x, surface_y;
+    enif_get_double(env, argv[2], &surface_x);
+    enif_get_double(env, argv[3], &surface_y);
+
+    cairo_mask_surface(context->data, pattern->data, surface_x, surface_y);
+
+    return ERL_OK;
+}
+
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
