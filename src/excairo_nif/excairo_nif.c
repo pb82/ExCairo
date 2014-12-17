@@ -1222,7 +1222,7 @@ static ERL_NIF_TERM EX_mask_surface(ErlNifEnv* env, int argc, const ERL_NIF_TERM
 }
 
 /**
- * Wraps cairo_matrix_init(cairo_t *cr, double xx, double yx, double xy, double x0, doubel y0)
+ * Wraps cairo_matrix_init(cairo_matrix_t *matrix, double xx, double yx, double xy, double x0, doubel y0)
  * @brief EX_matrix_init
  * @param env
  * @param argc
@@ -1244,6 +1244,106 @@ static ERL_NIF_TERM EX_matrix_init(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 
     cairo_matrix_t matrix;
     cairo_matrix_init(&matrix, xx, yx, xy, yy, x0, y0);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_matrix_init_identity(cairo_matrix_t *matrix)
+ * @brief EX_matrix_init_identity
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_init_identity(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+
+    cairo_matrix_t matrix;
+    cairo_matrix_init_identity(&matrix);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_matrix_init_rotate(cairo_matrix_t *matrix, double radians)
+ * @brief EX_matrix_init_rotate
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_init_rotate(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double radians;
+    enif_get_double(env, argv[1], &radians);
+
+    cairo_matrix_t matrix;
+    cairo_matrix_init_rotate(&matrix, radians);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_matrix_init_scale(cairo_matrix_t *matrix, double sx, double sy)
+ * @brief EX_matrix_init_scale
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_init_scale(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double sx, sy;
+    enif_get_double(env, argv[1], &sx);
+    enif_get_double(env, argv[2], &sy);
+
+    cairo_matrix_t matrix;
+    cairo_matrix_init_scale(&matrix, sx, sy);
+
+    return enif_make_tuple3(env,
+                           enif_make_tuple2(env, matrix.xx, matrix.yx),
+                           enif_make_tuple2(env, matrix.xy, matrix.yy),
+                           enif_make_tuple2(env, matrix.x0, matrix.y0));
+}
+
+/**
+ * Wraps cairo_matrix_init_scale(cairo_matrix_t *matrix, double tx, double ty)
+ * @brief EX_matrix_init_translate
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_init_translate(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double tx, ty;
+    enif_get_double(env, argv[1], &tx);
+    enif_get_double(env, argv[2], &ty);
+
+    cairo_matrix_t matrix;
+    cairo_matrix_init_translate(&matrix, tx, ty);
 
     return enif_make_tuple3(env,
                            enif_make_tuple2(env, matrix.xx, matrix.yx),
