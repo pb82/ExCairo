@@ -6,7 +6,7 @@ CONFIG -= qt
 INCLUDEPATH += /usr/lib/erlang/erts-6.2.1/include/
 INCLUDEPATH += /usr/include/cairo
 
-QMAKE_CFLAGS += -Wno-missing-field-initializers
+QMAKE_CFLAGS += -Wno-missing-field-initializers -Wno-unused-parameter
 
 SOURCES += excairo_nif.c
 LIBS += -lcairo

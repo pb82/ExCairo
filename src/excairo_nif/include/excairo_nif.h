@@ -53,6 +53,40 @@
 // Use only in nif initializer function
 #define ERL_ASSERT_LOAD(condition) if (!(condition)) return -1
 
+// Export a standard matrix with the format
+//  --------
+// | xx | yx |
+// | -- | -- |
+// | xy | yy |
+// | -- | -- |
+// | x0 | y0 |
+//  --------
+#define ERL_EXPORT_MATRIX(name) enif_make_tuple3(env, \
+    enif_make_tuple2(env, enif_make_double(env, name.xx), enif_make_double(env, name.yx)), \
+    enif_make_tuple2(env, enif_make_double(env, name.xy), enif_make_double(env, name.yy)), \
+    enif_make_tuple2(env, enif_make_double(env, name.x0), enif_make_double(env, name.y0)));
+
+#define ERL_IMPORT_MATRIX(pos, name) \
+    int name ## _arity = 3; \
+    const ERL_NIF_TERM *name ## _tuple; \
+    ERL_ASSERT(enif_get_tuple(env, argv[pos], &name ## _arity, &name ## _tuple)); \
+    name ## _arity = 2; \
+    const ERL_NIF_TERM *name ## _row_1; \
+    const ERL_NIF_TERM *name ## _row_2; \
+    const ERL_NIF_TERM *name ## _row_3; \
+    ERL_ASSERT(enif_get_tuple(env, name ## _tuple[0], &name ## _arity, &name ## _row_1)); \
+    ERL_ASSERT(enif_get_tuple(env, name ## _tuple[0], &name ## _arity, &name ## _row_2)); \
+    ERL_ASSERT(enif_get_tuple(env, name ## _tuple[0], &name ## _arity, &name ## _row_3)); \
+    cairo_matrix_t name; \
+    enif_get_double(env, name ## _row_1[0], &name.xx); \
+    enif_get_double(env, name ## _row_1[1], &name.yx); \
+    enif_get_double(env, name ## _row_2[0], &name.xy); \
+    enif_get_double(env, name ## _row_2[1], &name.yy); \
+    enif_get_double(env, name ## _row_3[0], &name.x0); \
+    enif_get_double(env, name ## _row_3[1], &name.y0);
+
+
+
 // --------------------------------------------------------------------------------
 
 // Predefined erlang terms
