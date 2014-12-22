@@ -1350,13 +1350,59 @@ static ERL_NIF_TERM EX_matrix_invert(ErlNifEnv* env, int argc, const ERL_NIF_TER
  * @return
  */
 static ERL_NIF_TERM EX_matrix_multiply(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-    ERL_ASSERT_ARGC(3);
-    ERL_IMPORT_MATRIX(0, result);
-    ERL_IMPORT_MATRIX(1, matrix_a);
-    ERL_IMPORT_MATRIX(2, matrix_b);
+    ERL_ASSERT_ARGC(2);
+    ERL_IMPORT_MATRIX(0, matrix_a);
+    ERL_IMPORT_MATRIX(1, matrix_b);
 
+    cairo_matrix_t result;
     cairo_matrix_multiply(&result, &matrix_a, &matrix_b);
     return ERL_EXPORT_MATRIX(result);
+}
+
+/**
+ * Wraps cairo_matrix_rotate(
+ *  cairo_matrix_t *matrix,
+ *  double radians
+ * )
+ * @brief EX_matrix_rotate
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_rotate(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_IMPORT_MATRIX(0, matrix);
+
+    double radians;
+    enif_get_double(env, argv[1], &radians);
+
+    cairo_matrix_rotate(&matrix, radians);
+    return ERL_EXPORT_MATRIX(matrix);
+}
+
+/**
+ * Wraps cairo_matrix_scale(
+ *  cairo_matrix_t *matrix,
+ *  double sx,
+ *  double sy
+ * )
+ * @brief EX_matrix_scale
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_scale(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_IMPORT_MATRIX(0, matrix);
+
+    double sx, sy;
+    enif_get_double(env, argv[1], &sx);
+    enif_get_double(env, argv[2], &sy);
+
+    cairo_matrix_scale(&matrix, sx, sy);
+    return ERL_EXPORT_MATRIX(matrix);
 }
 
 
