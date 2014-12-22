@@ -1405,7 +1405,6 @@ static ERL_NIF_TERM EX_matrix_scale(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     return ERL_EXPORT_MATRIX(matrix);
 }
 
-
 /**
  * Wraps cairo_matrix_transform_distance(
  *  cairo_matrix_t *matrix,
@@ -1452,6 +1451,30 @@ static ERL_NIF_TERM EX_matrix_transform_point(ErlNifEnv* env, int argc, const ER
 
     cairo_matrix_transform_point(&matrix, &x, &y);
     return enif_make_tuple2(env, enif_make_double(env, x), enif_make_double(env, y));
+}
+
+/**
+ * Wraps cairo_matrix_translate(
+ *  cairo_matrix_t *matrix,
+ *  double tx,
+ *  double ty
+ * )
+ * @brief EX_matrix_translate
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_translate(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_IMPORT_MATRIX(0, matrix);
+
+    double tx, ty;
+    enif_get_double(env, argv[1], &tx);
+    enif_get_double(env, argv[2], &ty);
+
+    cairo_matrix_translate(&matrix, tx, ty);
+    return ERL_EXPORT_MATRIX(matrix);
 }
 
 /**
