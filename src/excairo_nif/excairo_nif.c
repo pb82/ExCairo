@@ -1394,7 +1394,7 @@ static ERL_NIF_TERM EX_matrix_rotate(ErlNifEnv* env, int argc, const ERL_NIF_TER
  * @return
  */
 static ERL_NIF_TERM EX_matrix_scale(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-    ERL_ASSERT_ARGC(2);
+    ERL_ASSERT_ARGC(3);
     ERL_IMPORT_MATRIX(0, matrix);
 
     double sx, sy;
@@ -1405,6 +1405,54 @@ static ERL_NIF_TERM EX_matrix_scale(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     return ERL_EXPORT_MATRIX(matrix);
 }
 
+
+/**
+ * Wraps cairo_matrix_transform_distance(
+ *  cairo_matrix_t *matrix,
+ *  double *dx,
+ *  double *dy
+ * )
+ * @brief EX_matrix_transform_distance
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_transform_distance(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_IMPORT_MATRIX(0, matrix);
+
+    double dx, dy;
+    enif_get_double(env, argv[1], &dx);
+    enif_get_double(env, argv[2], &dy);
+
+    cairo_matrix_transform_distance(&matrix, &dx, &dy);
+    return enif_make_tuple2(env, enif_make_double(env, dx), enif_make_double(env, dy));
+}
+
+/**
+ * Wraps cairo_matrix_transform_point(
+ *  cairo_matrix_t *matrix,
+ *  double *x,
+ *  double *y
+ * )
+ * @brief EX_matrix_transform_distance
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_matrix_transform_point(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_IMPORT_MATRIX(0, matrix);
+
+    double x, y;
+    enif_get_double(env, argv[1], &x);
+    enif_get_double(env, argv[2], &y);
+
+    cairo_matrix_transform_point(&matrix, &x, &y);
+    return enif_make_tuple2(env, enif_make_double(env, x), enif_make_double(env, y));
+}
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
