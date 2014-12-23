@@ -1477,6 +1477,47 @@ static ERL_NIF_TERM EX_matrix_translate(ErlNifEnv* env, int argc, const ERL_NIF_
     return ERL_EXPORT_MATRIX(matrix);
 }
 
+// TODO
+// MISSING
+// cairo_mesh_pattern_*
+
+
+/**
+ * Wraps cairo_new_path()
+ * @brief EX_new_path
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_new_path(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_new_path(context->data);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_new_sub_path()
+ * @brief EX_new_sub_path
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_new_sub_path(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_new_sub_path(context->data);
+
+    return ERL_OK;
+}
+
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create

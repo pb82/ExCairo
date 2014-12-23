@@ -3,7 +3,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-INCLUDEPATH += /usr/lib/erlang/erts-6.2.1/include/
+INCLUDEPATH += /usr/lib/erlang/erts-6.3/include/
 INCLUDEPATH += /usr/include/cairo
 
 QMAKE_CFLAGS += -Wno-missing-field-initializers -Wno-unused-parameter
