@@ -1519,6 +1519,45 @@ static ERL_NIF_TERM EX_new_sub_path(ErlNifEnv* env, int argc, const ERL_NIF_TERM
 }
 
 /**
+ * Wraps cairo_paint()
+ * @brief EX_paint
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_paint(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    cairo_paint(context->data);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_paint_with_alpha()
+ * @brief EX_paint_with_alpha
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_paint_with_alpha(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double alpha;
+    enif_get_double(env, argv[1], &alpha);
+
+    cairo_paint_with_alpha(context->data, alpha);
+
+    return ERL_OK;
+}
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
