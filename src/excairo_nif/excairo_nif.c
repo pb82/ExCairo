@@ -1558,6 +1558,112 @@ static ERL_NIF_TERM EX_paint_with_alpha(ErlNifEnv* env, int argc, const ERL_NIF_
 }
 
 /**
+ * Wraps cairo_pattern_add_color_stop_rgb(cairo_pattern_t* pattern,
+ *  double offset,
+ *  double red,
+ *  double green,
+ *  double blue);
+ * @brief EX_pattern_add_color_stop_rgb
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_add_color_stop_rgb(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(5);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern);
+    ERL_ASSERT(pattern);
+
+    double offset, red, green, blue;
+    enif_get_double(env, argv[1], &offset);
+    enif_get_double(env, argv[2], &red);
+    enif_get_double(env, argv[3], &green);
+    enif_get_double(env, argv[4], &blue);
+
+    cairo_pattern_add_color_stop_rgb(pattern->data, offset, red, green, blue);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_pattern_add_color_stop_rgba(cairo_pattern_t* pattern,
+ *  double offset,
+ *  double red,
+ *  double green,
+ *  double blue,
+ *  double alpha);
+ * @brief EX_pattern_add_color_stop_rgba
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_add_color_stop_rgba(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(6);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern);
+    ERL_ASSERT(pattern);
+
+    double offset, red, green, blue, alpha;
+    enif_get_double(env, argv[1], &offset);
+    enif_get_double(env, argv[2], &red);
+    enif_get_double(env, argv[3], &green);
+    enif_get_double(env, argv[4], &blue);
+    enif_get_double(env, argv[5], &alpha);
+
+    cairo_pattern_add_color_stop_rgba(pattern->data, offset, red, green, blue, alpha);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_pattern_create_for_surface(cairo_surface_t* surface);
+ * @brief EX_pattern_add_color_stop_rgba
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_create_for_surface(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface)
+    ERL_ASSERT(surface);
+
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_pattern_create_for_surface(surface->data);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, surface_term);
+    return ERL_MAKE_OK_TUPLE(surface_term);
+}
+
+
+/**
+ * Wraps cairo_path_extents(cairo_t* cr, double *x1, double *y1, double *x2, double *y2)
+ * @brief EX_path_extents
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_path_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x1, y1, x2, y2;
+    cairo_path_extents(context->data, &x1, &y1, &x2, &y2);
+
+    return enif_make_tuple4(env,
+                            enif_make_double(env, x1),
+                            enif_make_double(env, y1),
+                            enif_make_double(env, y1),
+                            enif_make_double(env, y2));
+}
+
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
