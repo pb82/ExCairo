@@ -1558,6 +1558,29 @@ static ERL_NIF_TERM EX_paint_with_alpha(ErlNifEnv* env, int argc, const ERL_NIF_
 }
 
 /**
+ * Wraps cairo_path_extents(cairo_t* cr, double *x1, double *y1, double *x2, double *y2)
+ * @brief EX_path_extents
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_path_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x1, y1, x2, y2;
+    cairo_path_extents(context->data, &x1, &y1, &x2, &y2);
+
+    return enif_make_tuple4(env,
+                            enif_make_double(env, x1),
+                            enif_make_double(env, y1),
+                            enif_make_double(env, y1),
+                            enif_make_double(env, y2));
+}
+
+/**
  * Wraps cairo_pattern_add_color_stop_rgb(cairo_pattern_t* pattern,
  *  double offset,
  *  double red,
@@ -1638,30 +1661,152 @@ static ERL_NIF_TERM EX_pattern_create_for_surface(ErlNifEnv* env, int argc, cons
     return ERL_MAKE_OK_TUPLE(surface_term);
 }
 
-
 /**
- * Wraps cairo_path_extents(cairo_t* cr, double *x1, double *y1, double *x2, double *y2)
- * @brief EX_path_extents
+ * Wraps cairo_pattern_create_linear(double x0, double y0, double x1, double y1);
+ * @brief EX_pattern_create_linear
  * @param env
  * @param argc
  * @param argv
  * @return
  */
-static ERL_NIF_TERM EX_path_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-    ERL_ASSERT_ARGC(1);
-    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
-    ERL_ASSERT(context);
+static ERL_NIF_TERM EX_pattern_create_linear(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(4);
 
-    double x1, y1, x2, y2;
-    cairo_path_extents(context->data, &x1, &y1, &x2, &y2);
+    double x0, y0, x1, y1;
+    enif_get_double(env, argv[0], &x0);
+    enif_get_double(env, argv[1], &y0);
+    enif_get_double(env, argv[2], &x1);
+    enif_get_double(env, argv[3], &y1);
 
-    return enif_make_tuple4(env,
-                            enif_make_double(env, x1),
-                            enif_make_double(env, y1),
-                            enif_make_double(env, y1),
-                            enif_make_double(env, y2));
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_pattern_create_linear(x0, y0, x1, y1);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, pattern_term);
+    return ERL_MAKE_OK_TUPLE(pattern_term);
 }
 
+// TODO
+// MISSING
+// cairo_pattern_create_mesh
+
+/**
+ * Wraps cairo_pattern_create_radial(
+ *  double cx0,
+ *  double cy0,
+ *  double radius0,
+ *  double cx1,
+ *  double xy1,
+ *  double radius1);
+ * @brief EX_pattern_create_radial
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_create_radial(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(6);
+
+    double cx0, cy0, radius0, cx1, cy1, radius1;
+    enif_get_double(env, argv[0], &cx0);
+    enif_get_double(env, argv[1], &cy0);
+    enif_get_double(env, argv[2], &radius0);
+    enif_get_double(env, argv[3], &cx1);
+    enif_get_double(env, argv[4], &cy1);
+    enif_get_double(env, argv[5], &radius1);
+
+
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_pattern_create_radial(cx0, cy0, radius0, cx1, cy1, radius1);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, pattern_term);
+    return ERL_MAKE_OK_TUPLE(pattern_term);
+}
+
+// TODO
+// MISSING
+// cairo_pattern_create_raster_source
+
+/**
+ * Wraps cairo_pattern_create_rgb(double red, double green, double blue);
+ * @brief EX_pattern_create_rgb
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_create_rgb(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+
+    double red, green, blue;
+    enif_get_double(env, argv[0], &red);
+    enif_get_double(env, argv[1], &green);
+    enif_get_double(env, argv[2], &blue);
+
+
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_pattern_create_rgb(red, green, blue);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, pattern_term);
+    return ERL_MAKE_OK_TUPLE(pattern_term);
+}
+
+/**
+ * Wraps cairo_pattern_create_rgba(double red, double green, double blue, double alpha);
+ * @brief EX_pattern_create_rgba
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_create_rgba(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(4);
+
+    double red, green, blue, alpha;
+    enif_get_double(env, argv[0], &red);
+    enif_get_double(env, argv[1], &green);
+    enif_get_double(env, argv[2], &blue);
+    enif_get_double(env, argv[2], &alpha);
+
+    ERL_MAKE_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_pattern_create_rgba(red, green, blue, alpha);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, pattern_term);
+    return ERL_MAKE_OK_TUPLE(pattern_term);
+}
+
+/**
+ * Wraps cairo_pattern_get_color_stop_count(cairo_patter_t *pattern, int *count);
+ * @brief EX_pattern_get_color_stop_count
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_get_color_stop_count(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    int count;
+    cairo_status_t status = cairo_pattern_get_color_stop_count(pattern->data, &count);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return enif_make_int(env, count);
+    } else {
+        return enif_make_badarg(env);
+    }
+}
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
