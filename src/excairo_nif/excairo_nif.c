@@ -1809,6 +1809,62 @@ static ERL_NIF_TERM EX_pattern_get_color_stop_count(ErlNifEnv* env, int argc, co
 }
 
 /**
+ * Wraps cairo_pattern_get_rgba(cairo_patter_t *pattern, double *red, double *green, double *blue, double *aplha);
+ * @brief EX_pattern_get_rgba
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_get_rgba(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    double red, green, blue, alpha;
+
+    cairo_status_t status = cairo_pattern_get_rgba(pattern->data, &red, &green, &blue, &alpha);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        return enif_make_tuple4(env,
+                    enif_make_double(env, red),
+                    enif_make_double(env, green),
+                    enif_make_double(env, blue),
+                    enif_make_double(env, alpha));
+    } else {
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_pattern_get_surface(cairo_patter_t *pattern, cairo_surface:t **surface);
+ * @brief EX_pattern_get_surface
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_get_surface(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    cairo_surface_t *surface;
+
+    cairo_status_t status = cairo_pattern_get_surface(pattern->data, &surface);
+    if (status == CAIRO_STATUS_SUCCESS) {
+        ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
+        ERL_ASSERT(instance);
+
+        instance->data = surface;
+        // The surface is owned by the pattern so don't garbage collect it
+        return enif_make_resource(env, instance);
+    } else {
+        return enif_make_badarg(env);
+    }
+}
+
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
