@@ -1863,6 +1863,50 @@ static ERL_NIF_TERM EX_pattern_get_surface(ErlNifEnv* env, int argc, const ERL_N
     }
 }
 
+/**
+ * Wraps cairo_pattern_get_type(cairo_patter_t *pattern);
+ * @brief EX_pattern_get_type
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_get_type(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    cairo_pattern_type_t type = cairo_pattern_get_type(pattern->data);
+    switch (type) {
+    case CAIRO_PATTERN_TYPE_SOLID:
+        return enif_make_atom(env, "solid");
+    case CAIRO_PATTERN_TYPE_SURFACE:
+        return enif_make_atom(env, "surface");
+    case CAIRO_PATTERN_TYPE_LINEAR:
+        return enif_make_atom(env, "linear");
+    case CAIRO_PATTERN_TYPE_RADIAL:
+        return enif_make_atom(env, "radial");
+    case CAIRO_PATTERN_TYPE_MESH:
+        return enif_make_atom(env, "mesh");
+    case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
+        return enif_make_atom(env, "raster_source");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+// TODO (?)
+// MISSING
+// cairo_pattern_get_user_data
+// cairo_pattern_reference
+/**
+  * cairo_pattern_reference is not wrapped, because it would allow
+  * a user to increase the reference count of the object and thus
+  * circumvent garbage collection. If that function was accessible
+  * it's counterpart `cairo_pattern_destroy` must also be.
+  * I decided against this but there might be a good reason to make
+  * them accessible at some later point
+  */
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
