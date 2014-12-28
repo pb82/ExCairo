@@ -54,6 +54,19 @@ static void define_predef_atoms (ErlNifEnv *env) {
     ET_hsl_saturation   = enif_make_atom(env, "hsl_saturation");
     ET_hsl_color        = enif_make_atom(env, "hsl_color");
     ET_hsl_luminosity   = enif_make_atom(env, "hsl_luminosity");
+
+    ET_none             = enif_make_atom(env, "none");
+    ET_repeat           = enif_make_atom(env, "repeat");
+    ET_reflect          = enif_make_atom(env, "reflect");
+    ET_pad              = enif_make_atom(env, "pad");
+
+    ET_fast             = enif_make_atom(env, "fast");
+    ET_good             = enif_make_atom(env, "good");
+    ET_best             = enif_make_atom(env, "best");
+    ET_nearest          = enif_make_atom(env, "nearest");
+    ET_bilinear         = enif_make_atom(env, "bilinear");
+    ET_gaussian         = enif_make_atom(env, "gaussian");
+
 }
 
 /**
@@ -1909,6 +1922,78 @@ static ERL_NIF_TERM EX_pattern_get_type(ErlNifEnv* env, int argc, const ERL_NIF_
   */
 
 /**
+ * Wraps cairo_pattern_set_extend(cairo_patter_t *pattern, cairo_extend_t extend);
+ * @brief EX_pattern_set_extend
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_set_extend(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    cairo_extend_t extend;
+    ERL_TRY_ATOM(1,     ET_none,    extend, CAIRO_EXTEND_NONE)
+    _ERL_TRY_ATOM(1,    ET_repeat,  extend, CAIRO_EXTEND_REPEAT)
+    _ERL_TRY_ATOM(1,    ET_reflect, extend, CAIRO_EXTEND_REFLECT)
+    _ERL_TRY_ATOM(1,    ET_pad,     extend, CAIRO_EXTEND_PAD)
+    _ERL_FAIL_ATOM;
+
+    cairo_pattern_set_extend(pattern->data, extend);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_pattern_set_filter(cairo_patter_t *pattern, cairo_filter_t extend);
+ * @brief EX_pattern_set_filter
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_set_filter(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    cairo_extend_t filter;
+    ERL_TRY_ATOM(1,     ET_fast,        filter, CAIRO_FILTER_FAST)
+    _ERL_TRY_ATOM(1,    ET_good,        filter, CAIRO_FILTER_GOOD)
+    _ERL_TRY_ATOM(1,    ET_best,        filter, CAIRO_FILTER_BEST)
+    _ERL_TRY_ATOM(1,    ET_nearest,     filter, CAIRO_FILTER_NEAREST)
+    _ERL_TRY_ATOM(1,    ET_bilinear,    filter, CAIRO_FILTER_BILINEAR)
+    _ERL_TRY_ATOM(1,    ET_gaussian,    filter, CAIRO_FILTER_GAUSSIAN)
+    _ERL_FAIL_ATOM;
+
+    cairo_pattern_set_filter(pattern->data, filter);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_pattern_set_matrix(cairo_patter_t *pattern, const cairo_matrix_t *matrix);
+ * @brief EX_pattern_set_matrix
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_set_matrix(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    ERL_IMPORT_MATRIX(1, matrix);
+
+    cairo_pattern_set_matrix(pattern->data, &matrix);
+
+    return ERL_OK;
+}
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
@@ -1926,7 +2011,8 @@ static ERL_NIF_TERM EX_image_surface_create(ErlNifEnv* env, int argc, const ERL_
     _ERL_TRY_ATOM(0, ET_a8,          format, 2)
     _ERL_TRY_ATOM(0, ET_a1,          format, 3)
     _ERL_TRY_ATOM(0, ET_rgb16_565,   format, 4)
-    _ERL_TRY_ATOM(0, ET_rgb30,       format, 5);
+    _ERL_TRY_ATOM(0, ET_rgb30,       format, 5)
+    _ERL_FAIL_ATOM;
 
     ERL_GET_INT(1, width);
     ERL_GET_INT(2, height);
@@ -2009,10 +2095,12 @@ static ERL_NIF_TERM EX_select_font_face(ErlNifEnv* env, int argc, const ERL_NIF_
 
     ERL_TRY_ATOM(2, ET_normal,      slant, 0)
     _ERL_TRY_ATOM(2, ET_italic,     slant, 1)
-    _ERL_TRY_ATOM(2, ET_oblique,    slant, 2);
+    _ERL_TRY_ATOM(2, ET_oblique,    slant, 2)
+    _ERL_FAIL_ATOM;
 
     ERL_TRY_ATOM(3, ET_normal,      weight, 0)
-    _ERL_TRY_ATOM(3, ET_bold,       weight, 1);
+    _ERL_TRY_ATOM(3, ET_bold,       weight, 1)
+    _ERL_FAIL_ATOM;
 
     cairo_select_font_face(context->data, family, slant, weight);
     return ERL_OK;

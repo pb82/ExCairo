@@ -43,6 +43,8 @@
 #define _ERL_TRY_ATOM(pos, atom, name, value) \
     else if (enif_compare(argv[pos], atom) == 0) { name = value; }
 
+#define _ERL_FAIL_ATOM else { return enif_make_badarg(env); }
+
 // Standard return type
 #define ERL_MAKE_OK_TUPLE(data) enif_make_tuple2(env, enif_make_atom(env, "ok"), data)
 #define ERL_OK enif_make_atom(env, "ok");
@@ -146,6 +148,20 @@ static ERL_NIF_TERM ET_hsl_hue;
 static ERL_NIF_TERM ET_hsl_saturation;
 static ERL_NIF_TERM ET_hsl_color;
 static ERL_NIF_TERM ET_hsl_luminosity;
+
+// Extend
+static ERL_NIF_TERM ET_none;
+static ERL_NIF_TERM ET_repeat;
+static ERL_NIF_TERM ET_reflect;
+static ERL_NIF_TERM ET_pad;
+
+// Filter
+static ERL_NIF_TERM ET_fast;
+static ERL_NIF_TERM ET_good;
+static ERL_NIF_TERM ET_best;
+static ERL_NIF_TERM ET_nearest;
+static ERL_NIF_TERM ET_bilinear;
+static ERL_NIF_TERM ET_gaussian;
 
 // --------------------------------------------------------------------------------
 
