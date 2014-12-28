@@ -1994,6 +1994,37 @@ static ERL_NIF_TERM EX_pattern_set_matrix(ErlNifEnv* env, int argc, const ERL_NI
 }
 
 /**
+ * Wraps cairo_pattern_status(cairo_patter_t *pattern);
+ * @brief EX_pattern_set_matrix
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pattern_status(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_pattern_t_TYPE, cairo_pattern_t_RT, 0, pattern)
+    ERL_ASSERT(pattern);
+
+    cairo_status_t status = cairo_pattern_status(pattern->data);
+    switch (status) {
+    case CAIRO_STATUS_SUCCESS:
+        return enif_make_atom(env, "success");
+    case CAIRO_STATUS_NO_MEMORY:
+        return enif_make_atom(env, "no_memory");
+    case CAIRO_STATUS_INVALID_MATRIX:
+        return enif_make_atom(env, "invalid_matrix");
+    case CAIRO_STATUS_PATTERN_TYPE_MISMATCH:
+        return enif_make_atom(env, "pattern_type_mismatch");
+    case CAIRO_STATUS_INVALID_MESH_CONSTRUCTION:
+        return enif_make_atom(env, "invalid_mesh_construction");
+    default:
+        return enif_make_badarg(env);
+    }
+}
+
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
