@@ -163,6 +163,11 @@ static ERL_NIF_TERM ET_nearest;
 static ERL_NIF_TERM ET_bilinear;
 static ERL_NIF_TERM ET_gaussian;
 
+// Content
+static ERL_NIF_TERM ET_color;
+static ERL_NIF_TERM ET_alpha;
+static ERL_NIF_TERM ET_color_alpha;
+
 // --------------------------------------------------------------------------------
 
 

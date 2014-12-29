@@ -67,6 +67,9 @@ static void define_predef_atoms (ErlNifEnv *env) {
     ET_bilinear         = enif_make_atom(env, "bilinear");
     ET_gaussian         = enif_make_atom(env, "gaussian");
 
+    ET_color            = enif_make_atom(env, "color");
+    ET_alpha            = enif_make_atom(env, "alpha");
+    ET_color_alpha      = enif_make_atom(env, "color_alpha");
 }
 
 /**
@@ -2023,6 +2026,52 @@ static ERL_NIF_TERM EX_pattern_status(ErlNifEnv* env, int argc, const ERL_NIF_TE
     }
 }
 
+// TODO
+// MISSING
+// cairo_pdf_*
+// cairo_ps_*
+
+/**
+ * Wraps cairo_push_group(cairo_t *cr);
+ * @brief EX_push_group
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_push_group(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context)
+    ERL_ASSERT(context);
+
+    cairo_push_group(context->data);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_push_group_with_content(cairo_t *cr, cairo_content_t content);
+ * @brief EX_push_group_with_content
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_push_group_with_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context)
+    ERL_ASSERT(context);
+
+    cairo_content_t content;
+    ERL_TRY_ATOM(1,     ET_color,       content, CAIRO_CONTENT_COLOR)
+    _ERL_TRY_ATOM(1,    ET_alpha,       content, CAIRO_CONTENT_ALPHA)
+    _ERL_TRY_ATOM(1,    ET_color_alpha, content, CAIRO_CONTENT_COLOR_ALPHA)
+    _ERL_FAIL_ATOM;
+
+    cairo_push_group_with_content(context->data, content);
+
+    return ERL_OK;
+}
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
