@@ -2049,6 +2049,48 @@ static ERL_NIF_TERM EX_push_group(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
     return ERL_OK;
 }
 
+// TODO
+// MISSING
+// cairo_pdf_*
+// cairo_ps_*
+
+/**
+ * Wraps cairo_pop_group(cairo_t *cr);
+ * @brief EX_pop_group
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pop_group(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context)
+    ERL_ASSERT(context);
+
+    cairo_pop_group(context->data);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_pop_group_to_source(cairo_t *cr);
+ * @brief EX_pop_group_to_source
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_pop_group_to_source(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context)
+    ERL_ASSERT(context);
+
+    cairo_pop_group_to_source(context->data);
+
+    return ERL_OK;
+}
+
+
 /**
  * Wraps cairo_push_group_with_content(cairo_t *cr, cairo_content_t content);
  * @brief EX_push_group_with_content
