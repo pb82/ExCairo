@@ -2116,6 +2116,99 @@ static ERL_NIF_TERM EX_push_group_with_content(ErlNifEnv* env, int argc, const E
 }
 
 /**
+ * Wraps cairo_recording_surface_create(
+ *  cairo_content_t content,
+ *  const cairo_rectangle_t *extents);
+ * @brief EX_recording_surface_create
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_recording_surface_create(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+
+    cairo_content_t content;
+    ERL_TRY_ATOM(0,     ET_color,       content, CAIRO_CONTENT_COLOR)
+    _ERL_TRY_ATOM(0,    ET_alpha,       content, CAIRO_CONTENT_ALPHA)
+    _ERL_TRY_ATOM(0,    ET_color_alpha, content, CAIRO_CONTENT_COLOR_ALPHA)
+    _ERL_FAIL_ATOM;
+
+    int arity = 4;
+    const ERL_NIF_TERM *tuple;
+    ERL_ASSERT(enif_get_tuple(env, argv[1], &arity, &tuple));
+
+    cairo_rectangle_t rect;
+    enif_get_double(env, tuple[0], &rect.x);
+    enif_get_double(env, tuple[1], &rect.y);
+    enif_get_double(env, tuple[2], &rect.width);
+    enif_get_double(env, tuple[3], &rect.height);
+
+    ERL_MAKE_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, instance);
+    ERL_ASSERT(instance);
+
+    instance->data = cairo_recording_surface_create(content, &rect);
+
+    // Create a garbage-collectable resource
+    ERL_MAKE_GC_RES(instance, surface);
+    return ERL_MAKE_OK_TUPLE(surface);
+}
+
+/**
+ * Wraps cairo_recording_surface_get_extents(
+ *   cairo_surface_t *surface,
+ *   cairo_rectangle_t *extents);
+ * @brief EX_recording_surface_get_extents
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_recording_surface_get_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface)
+    ERL_ASSERT(surface);
+
+    cairo_rectangle_t extents;
+    if (cairo_recording_surface_get_extents(surface->data, &extents)) {
+        return enif_make_tuple4(env,
+                                enif_make_double(env, extents.x),
+                                enif_make_double(env, extents.y),
+                                enif_make_double(env, extents.width),
+                                enif_make_double(env, extents.height));
+    } else {
+        return enif_make_badarg(env);
+    }
+}
+
+/**
+ * Wraps cairo_recording_surface_ink_extents(
+ *      cairo_surface_t *surface,
+ *      double *x0,
+ *      double *y0,
+ *      double *width,
+ *      double *height);
+ * @brief EX_recording_surface_ink_extents
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_recording_surface_ink_extents(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(1);
+    ERL_GET_INSTANCE(cairo_surface_t_TYPE, cairo_surface_t_RT, 0, surface)
+    ERL_ASSERT(surface);
+
+    double x,y,w,h;
+    cairo_recording_surface_ink_extents(surface->data, &x,&y,&w,&h);
+    return enif_make_tuple4(env,
+                            enif_make_double(env, x),
+                            enif_make_double(env, y),
+                            enif_make_double(env, w),
+                            enif_make_double(env, h));
+}
+
+/**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
  * @brief EX_image_surface_create
  * @param env
