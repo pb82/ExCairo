@@ -348,8 +348,8 @@ static void gc_cairo_font_options_t (ErlNifEnv *env, void *instance) {
 
 /**
  * Erlang Resource Type representing a
- * cairo_path_t
- * @brief cairo_surface_t_RT
+ * cairo_pattern_t
+ * @brief cairo_pattern_t_RT
  */
 static ErlNifResourceType *cairo_pattern_t_RT = NULL;
 
@@ -372,6 +372,41 @@ static void gc_cairo_pattern_t (ErlNifEnv *env, void *instance) {
     cairo_pattern_t_TYPE* p = (cairo_pattern_t_TYPE *) instance;
     if (env && p && p->data) {
         cairo_pattern_destroy(p->data);
+    }
+}
+
+// --------------------------------------------------------------------------------
+
+
+// cairo_region_t
+// --------------------------------------------------------------------------------
+
+/**
+ * Erlang Resource Type representing a
+ * cairo_region_t
+ * @brief cairo_region_t_RT
+ */
+static ErlNifResourceType *cairo_region_t_RT = NULL;
+
+/**
+ * Struct to use in place of cairo_region_t when
+ * allocating resources with enif_alloc_resource
+ */
+typedef struct {
+    cairo_region_t *data;
+} cairo_region_t_TYPE;
+
+/**
+ * Destructor function to enable garbage collection of
+ * cairo_surface_t instances
+ * @brief gc_cairo_surface_t
+ * @param env Erlang environment
+ * @param instance wraps a cairo_surface_t instance
+ */
+static void gc_cairo_region_t (ErlNifEnv *env, void *instance) {
+    cairo_region_t_TYPE* r = (cairo_region_t_TYPE *) instance;
+    if (env && r && r->data) {
+        cairo_region_destroy(r->data);
     }
 }
 

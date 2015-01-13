@@ -134,6 +134,14 @@ static int load(ErlNifEnv *env, void **priv, ERL_NIF_TERM load_info) {
              gc_cairo_pattern_t,
              ERL_NIF_RT_CREATE, NULL);
 
+    // Define cairo_region_t_TYPE
+    cairo_region_t_RT = enif_open_resource_type(
+             env,
+             NULL,
+             "cairo_region_t_TYPE",
+             gc_cairo_region_t,
+             ERL_NIF_RT_CREATE, NULL);
+
     // Define cairo_t_TYPE
     cairo_t_RT = enif_open_resource_type(
              env,
@@ -148,6 +156,7 @@ static int load(ErlNifEnv *env, void **priv, ERL_NIF_TERM load_info) {
     ERL_ASSERT_LOAD(cairo_font_face_t_RT);
     ERL_ASSERT_LOAD(cairo_font_options_t_RT);
     ERL_ASSERT_LOAD(cairo_pattern_t_RT);
+    ERL_ASSERT_LOAD(cairo_region_t_RT);
     ERL_ASSERT_LOAD(cairo_t_RT);
 
     // Initialize the predefined erlang terms
@@ -2207,6 +2216,62 @@ static ERL_NIF_TERM EX_recording_surface_ink_extents(ErlNifEnv* env, int argc, c
                             enif_make_double(env, w),
                             enif_make_double(env, h));
 }
+
+/**
+ * Wraps cairo_rectangle(
+ *      cairo_t *cr,
+ *      double x,
+ *      double y,
+ *      double width,
+ *      double height);
+ * @brief EX_rectangle
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_rectangle(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(5);
+    ERL_GET_INSTANCE(cairo_t_TYPE, cairo_t_RT, 0, context);
+    ERL_ASSERT(context);
+
+    double x,y,w,h;
+    enif_get_double(env, argv[1], &x);
+    enif_get_double(env, argv[2], &y);
+    enif_get_double(env, argv[3], &w);
+    enif_get_double(env, argv[4], &h);
+
+    cairo_rectangle(context->data, x, y, w, h);
+
+    return ERL_OK;
+}
+
+/**
+ * Wraps cairo_region_contains_point(const cairo_region_t *region,
+                                                         int x,
+                                                         int y);
+ * @brief EX_region_contains_point
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_region_contains_point(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(3);
+    ERL_GET_INSTANCE(cairo_region_t_TYPE, cairo_region_t_RT, 0, region);
+    ERL_ASSERT(region);
+
+    ERL_GET_INT(1, x);
+    ERL_GET_INT(2, y);
+
+    if (cairo_region_contains_point(region->data, x, y)) {
+        return enif_make_atom(env, "true");
+    } else {
+        return enif_make_atom(env, "false");
+    }
+}
+
+
 
 /**
  * Wraps cairo_image_surface_create(cairo_format_t format, int width, int height)
