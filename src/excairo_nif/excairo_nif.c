@@ -2264,13 +2264,46 @@ static ERL_NIF_TERM EX_region_contains_point(ErlNifEnv* env, int argc, const ERL
     ERL_GET_INT(1, x);
     ERL_GET_INT(2, y);
 
-    if (cairo_region_contains_point(region->data, x, y)) {
-        return enif_make_atom(env, "true");
-    } else {
-        return enif_make_atom(env, "false");
-    }
+    cairo_bool_t result = cairo_region_contains_point(region->data, x, y);
+    return ERL_BOOL(result);
 }
 
+/**
+ * Wraps cairo_region_contains_rectangle(
+ *  const cairo_region_t *region,
+ *  const cairo_rectangle_int_t *rectangle);
+ * @brief EX_region_contains_point
+ * @param env
+ * @param argc
+ * @param argv
+ * @return
+ */
+static ERL_NIF_TERM EX_region_contains_rectangle(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+    ERL_ASSERT_ARGC(2);
+    ERL_GET_INSTANCE(cairo_region_t_TYPE, cairo_region_t_RT, 0, region);
+    ERL_ASSERT(region);
+
+    int arity = 4;
+    const ERL_NIF_TERM *tuple;
+    ERL_ASSERT(enif_get_tuple(env, argv[1], &arity, &tuple));
+
+    cairo_rectangle_int_t rect;
+
+    enif_get_int(env, tuple[0], &rect.x);
+    enif_get_int(env, tuple[1], &rect.y);
+    enif_get_int(env, tuple[2], &rect.width);
+    enif_get_int(env, tuple[3], &rect.height);
+
+    cairo_region_overlap_t result = cairo_region_contains_rectangle(region->data, &rect);
+    switch (result) {
+    case CAIRO_REGION_OVERLAP_IN:
+        return enif_make_atom(env, "in");
+    case CAIRO_REGION_OVERLAP_OUT:
+        return enif_make_atom(env, "out");
+    case CAIRO_REGION_OVERLAP_PART:
+        return enif_make_atom(env, "part");
+    }
+}
 
 
 /**
